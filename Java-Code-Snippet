@@ -1,0 +1,47 @@
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
+
+import okhttp3.MediaType;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.RequestBody;
+import okhttp3.Response;
+
+public class OpenAIExample {
+    public static final MediaType JSON = MediaType.get("application/json; charset=utf-8");
+
+    OkHttpClient client = new OkHttpClient();
+
+    String post(String url, String json) throws IOException {
+        RequestBody body = RequestBody.create(json, JSON);
+        Request request = new Request.Builder()
+                .header("Authorization", "Bearer YOUR_API_KEY")
+                .url(url)
+                .post(body)
+                .build();
+        try (Response response = client.newCall(request).execute()) {
+            return response.body().string();
+        }
+    }
+
+    public static void main(String[] args) {
+        OpenAIExample example = new OpenAIExample();
+        String prompt = "What is the capital of France?";
+        String url = "https://api.openai.com/v1/engines/davinci/completions";
+
+        Map<String, String> data = new HashMap<>();
+        data.put("prompt", prompt);
+        data.put("engine", "davinci");
+        data.put("temperature", "0.5");
+
+        String json = new Gson().toJson(data);
+
+        try {
+            String response = example.post(url, json);
+            System.out.println(response);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+}
